@@ -1,20 +1,20 @@
-# API Contract — Email Threat Detection Platform
+# API Contract - Email Threat Detection Platform
 
 ## Endpoint: POST /analyze
 
-### Request (Frontend → Backend)
+### Request (Frontend -> Backend)
 
-The frontend sends ONE raw pasted email as a single string. The backend is responsible for splitting headers from body — the frontend does NOT pre-split anything.
+The frontend sends ONE raw pasted email as a single string. The backend splits headers from body internally.
 
 ```json
 {
-  "raw_email": "Received: from mail.example.com (192.0.2.1)\nFrom: security@fakebank.com\nDate: Mon, 8 Sep 2026 10:00:00 +0000\nSubject: Urgent: Verify your account\n\nDear customer, your account will be suspended in 24 hours unless you verify your details immediately at http://fake-link.com"
+  "raw_email": "full pasted email including headers and body as one string"
 }
 ```
 
-**Why one field, not two:** real users copy-paste a whole email as one block. Standard email format already separates headers from body with a blank line — so the backend splits on the first blank line rather than asking the frontend to do it.
+Backend splits on the first blank line (standard email format: headers end where body begins).
 
-### Response (Backend → Frontend)
+### Response (Backend -> Frontend)
 
 ```json
 {
@@ -34,18 +34,27 @@ The frontend sends ONE raw pasted email as a single string. The backend is respo
     "source": "AbuseIPDB + VirusTotal"
   },
   "threat_score": 0,
-  "red_flags": ["string"],
-  "verdict": "safe | suspicious | malicious"
+  "classification": "legitimate | phishing | bec | spoofed",
+  "psychological_tactic": "e.g. False Urgency, Authority Bias, Financial Coercion, None",
+  "forensic_summary": "Two-sentence technical finding from AI analysis",
+  "indicators_of_compromise": ["explicit red flags found in headers or body"]
 }
 ```
 
-**Field notes:**
-- `threat_score`: integer 0-100, combines IP reputation + LLM analysis into one number.
-- `verdict`: derived from threat_score — e.g. 0-30 = safe, 31-70 = suspicious, 71-100 = malicious (Member 3/4 to confirm exact thresholds).
-- `red_flags`: plain-English strings from the LLM analysis, shown as a bullet list in the UI.
-- `location`: if the IP lookup fails or returns no location, backend should still return the field with null values, not omit it — keeps the frontend from crashing on missing keys.
+### Field source map (who provides what)
 
-### Backend split logic (Pydantic + FastAPI reference)
+| Field | Source |
+|---|---|
+| sender_ip | AI extraction (AI schema calls this originating_ip - backend renames it to sender_ip) |
+| location | ip-api.com (no key needed) |
+| ip_reputation | AbuseIPDB + VirusTotal combined by backend |
+| threat_score | AI schema, directly |
+| classification | AI schema, directly |
+| psychological_tactic | AI schema, directly |
+| forensic_summary | AI schema, directly |
+| indicators_of_compromise | AI schema, same field name |
+
+### Backend logic (Pydantic + FastAPI reference)
 
 ```python
 from pydantic import BaseModel
@@ -58,11 +67,14 @@ class Location(BaseModel):
     country: Optional[str] = None
     city: Optional[str] = None
     lat: Optional[float] = None
-    lng: Optional[float] = None
+    lon: Optional[float] = None
 
 class IPReputation(BaseModel):
-    score: int
-    reports: int
+    abuse_confidence_score: int
+    total_reports: int
+    vt_reputation: int
+    vt_malicious_votes: int
+    vt_harmless_votes: int
     source: str
 
 class AnalyzeResponse(BaseModel):
@@ -70,8 +82,10 @@ class AnalyzeResponse(BaseModel):
     location: Location
     ip_reputation: IPReputation
     threat_score: int
-    red_flags: List[str]
-    verdict: str
+    classification: str
+    psychological_tactic: str
+    forensic_summary: str
+    indicators_of_compromise: List[str]
 
 def split_email(raw_email: str) -> tuple[str, str]:
     """Splits raw pasted email into headers and body.
@@ -82,6 +96,12 @@ def split_email(raw_email: str) -> tuple[str, str]:
     return headers, body
 ```
 
+**Note for Backend (Member 4):** call AbuseIPDB, VirusTotal, ip-api.com, and the AI model in parallel where possible. Take the AI's originating_ip output and use it for all three IP lookups. Rename originating_ip to sender_ip in the final response.
+
+**Note for Frontend (Member 5):** use classification (legitimate/phishing/bec/spoofed) instead of the old verdict field. Display psychological_tactic and forensic_summary as part of the report - they add real explanatory value.
+
+### Test data
+Sample phishing and legitimate emails are in /data/samples/
+
 ### Open questions
-- Exact threat_score thresholds for verdict labels — confirm with Member 3.
-- Should `red_flags` include severity per item (e.g. `{"flag": "...", "severity": "high"}`) or stay as plain strings? Starting with plain strings for speed — can upgrade later if time allows.
+- Confirm exact color coding for the 4 classification values in the UI (Member 5 to decide)
