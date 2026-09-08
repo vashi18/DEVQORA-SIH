@@ -1,0 +1,23 @@
+From: accounts@company.com
+To: employee@company.com
+Subject: Monthly Meeting Confirmation
+Date: Tue, 08 Sep 2026 10:00:00 +0530
+Message-ID: <meeting123@company.com>
+Received: from mail.company.com (8.8.8.8)
+    by receiver.company.com
+    with ESMTP;
+    Tue, 08 Sep 2026 10:00:00 +0530
+Authentication-Results: receiver.company.com;
+    spf=pass;
+    dkim=pass;
+    dmarc=pass
+
+Hello,
+
+This is a confirmation for the monthly team meeting.
+
+The meeting will be held tomorrow at 10:00 AM.
+
+Regards,
+Accounts Team
+Company

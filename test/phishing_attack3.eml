@@ -1,0 +1,23 @@
+From: Microsoft Account Team <account-security@micros0ft-support.example.test>
+To: employee@example.org
+Reply-To: verify-account@micros0ft-support.example.test
+Subject: Action Required: Your account will be locked
+Date: Tue, 08 Sep 2026 11:20:00 +0000
+Message-ID: <phishing-002@micros0ft-support.example.test>
+Received: from unknown-host.example (198.51.100.91) by mx.example.org; Tue, 08 Sep 2026 11:20:00 +0000
+Authentication-Results: mx.example.org; spf=fail smtp.mailfrom=micros0ft-support.example.test; dkim=fail; dmarc=fail header.from=micros0ft-support.example.test
+Content-Type: text/plain; charset="utf-8"
+
+Hello,
+
+We detected unusual sign-in activity on your account.
+
+Your account will be locked unless you confirm your identity immediately.
+
+Review your account here:
+
+http://secure-account.example.test/microsoft/verify
+
+You must complete verification within 12 hours.
+
+Microsoft Account Security

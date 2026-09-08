@@ -1,0 +1,27 @@
+From: CEO <ceo@micros0ft-finance.com>
+To: finance@company.com
+Subject: URGENT - Wire Transfer Required
+Date: Tue, 08 Sep 2026 10:15:00 +0530
+Message-ID: <urgent987@micros0ft-finance.com>
+Received: from suspicious.example (185.220.101.5)
+    by mail.company.com
+    with ESMTP;
+    Tue, 08 Sep 2026 10:15:00 +0530
+Authentication-Results: mail.company.com;
+    spf=fail;
+    dkim=fail;
+    dmarc=fail
+
+Hi,
+
+I am currently in an important meeting.
+
+Please arrange an urgent wire transfer of INR 48,50,000
+to the account mentioned in the attached instructions.
+
+This needs to be completed immediately.
+
+Please do not delay or call me because I am unavailable.
+
+Regards,
+CEO

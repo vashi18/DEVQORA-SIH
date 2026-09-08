@@ -1,0 +1,18 @@
+From: Finance Director <finance-director@example.org>
+To: accounts@example.org
+Reply-To: finance-director@examp1e.org
+Subject: Confidential: urgent supplier payment
+Date: Tue, 08 Sep 2026 10:10:00 +0000
+Message-ID: <bec-001@examp1e.org>
+Received: from mail-gateway.example.net (192.0.2.77) by mx.example.org; Tue, 08 Sep 2026 10:10:00 +0000
+Authentication-Results: mx.example.org; spf=softfail smtp.mailfrom=examp1e.org; dkim=neutral; dmarc=fail header.from=example.org
+Content-Type: text/plain; charset="utf-8"
+
+Hi Accounts Team,
+
+I am in a meeting and need the pending supplier payment processed today.
+
+Please treat this as confidential and do not wait for the normal approval thread. Reply with confirmation once the payment instruction has been completed.
+
+Thanks,
+Finance Director

@@ -5,12 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 # ============================================================
-# CONFIGURATION — LOADED FROM .ENV
+# CONFIGURATION
 # ============================================================
-
-# ---------------- GEMINI ----------------
 
 GEMINI_KEYS = [
     os.getenv("GEMINI_API_KEY"),
@@ -18,488 +15,230 @@ GEMINI_KEYS = [
     os.getenv("GEMINI_API_KEY_3"),
 ]
 
-GEMINI_KEYS = [
-    key for key in GEMINI_KEYS
-    if key
-]
+GEMINI_KEYS = [k for k in GEMINI_KEYS if k]
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL")
-
-
-# ---------------- GROQ ----------------
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 GROQ_KEYS = [
     os.getenv("GROQ_API_KEY"),
     os.getenv("GROQ_API_KEY_2"),
 ]
 
-GROQ_KEYS = [
-    key for key in GROQ_KEYS
-    if key
-]
+GROQ_KEYS = [k for k in GROQ_KEYS if k]
 
-GROQ_MODEL = os.getenv("GROQ_MODEL")
-
-
-# ---------------- OPENROUTER ----------------
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 
 OPENROUTER_KEYS = [
     os.getenv("OPENROUTER_API_KEY"),
     os.getenv("OPENROUTER_API_KEY_2"),
 ]
 
-OPENROUTER_KEYS = [
-    key for key in OPENROUTER_KEYS
-    if key
-]
+OPENROUTER_KEYS = [k for k in OPENROUTER_KEYS if k]
 
 OPENROUTER_MODEL = os.getenv(
-    "OPENROUTER_MODEL"
+    "OPENROUTER_MODEL",
+    "openrouter/free"
 )
 
-
-# ---------------- OLLAMA ----------------
+OLLAMA_URL = os.getenv(
+    "OLLAMA_URL",
+    "http://127.0.0.1:11434/api/generate"
+)
 
 OLLAMA_MODEL = os.getenv(
-    "OLLAMA_MODEL"
+    "OLLAMA_MODEL",
+    "qwen2.5:3b"
 )
 
-
-# ---------------- GENERAL SETTINGS ----------------
-
-AI_TIMEOUT = int(
-    os.getenv(
-        "AI_TIMEOUT",
-        "30"
-    )
-)
+AI_TIMEOUT = int(os.getenv("AI_TIMEOUT", "30"))
 
 PRIMARY_PROVIDER = os.getenv(
     "AI_PRIMARY_PROVIDER",
     "gemini"
 ).lower()
 
-FALLBACK_ENABLED = (
-    os.getenv(
-        "AI_FALLBACK_ENABLED",
-        "true"
-    ).lower() == "true"
-)
+FALLBACK_ENABLED = os.getenv(
+    "AI_FALLBACK_ENABLED",
+    "true"
+).lower() == "true"
 
 
 # ============================================================
-# NORMALIZE EMAIL DATA
+# INPUT NORMALIZATION
 # ============================================================
 
-def normalize_email_data(email_data):
+def normalize_email_input(email_data):
 
-    return {
-        "from": email_data.get(
-            "from",
-            ""
-        ),
+    # If a string was supplied
+    if isinstance(email_data, str):
+        return {
+            "from": "",
+            "to": "",
+            "subject": "",
+            "body": email_data,
+            "received": [],
+            "spf": "",
+            "dkim": "",
+            "dmarc": "",
+            "originating_ip": "",
+        }
 
-        "to": email_data.get(
-            "to",
-            ""
-        ),
-
-        "subject": email_data.get(
-            "subject",
-            ""
-        ),
-
-        "date": email_data.get(
-            "date",
-            ""
-        ),
-
-        "body": email_data.get(
-            "body",
-            ""
-        ),
-
-        "received": email_data.get(
-            "received",
-            []
-        ),
-
-        "spf": email_data.get(
-            "spf",
-            ""
-        ),
-
-        "dkim": email_data.get(
-            "dkim",
-            ""
-        ),
-
-        "dmarc": email_data.get(
-            "dmarc",
-            ""
-        ),
-
-        "originating_ip": email_data.get(
-            "originating_ip",
-            ""
-        ),
-
-        "url_count": email_data.get(
-            "url_count",
-            0
-        ),
-
-        "suspicious_url_count": email_data.get(
-            "suspicious_url_count",
-            0
-        ),
-
-        "deterministic_threat_score":
-            email_data.get(
-                "deterministic_threat_score",
-                0
+    # If dictionary was supplied
+    if isinstance(email_data, dict):
+        return {
+            "from": str(email_data.get("from", "")),
+            "to": str(email_data.get("to", "")),
+            "subject": str(email_data.get("subject", "")),
+            "body": str(email_data.get("body", "")),
+            "received": email_data.get("received", []),
+            "spf": str(email_data.get("spf", "")),
+            "dkim": str(email_data.get("dkim", "")),
+            "dmarc": str(email_data.get("dmarc", "")),
+            "originating_ip": str(
+                email_data.get("originating_ip", "")
             ),
+        }
 
-        "deterministic_classification":
-            email_data.get(
-                "deterministic_classification",
-                "unknown"
-            ),
-
-        "forensic_evidence":
-            email_data.get(
-                "forensic_evidence",
-                []
-            ),
-    }
+    raise TypeError(
+        f"Unsupported email input type: {type(email_data).__name__}"
+    )
 
 
 # ============================================================
-# BUILD AI PROMPT
+# PROMPT
 # ============================================================
 
 def build_prompt(email_data):
 
-    data = normalize_email_data(
-        email_data
-    )
+    email = normalize_email_input(email_data)
 
     return f"""
-You are an expert cybersecurity and email-forensics analyst.
+You are an email cybersecurity forensic analyst.
 
-Analyze the email below and determine whether it is:
+Analyze the following email for phishing, business email compromise,
+spoofing, or legitimate communication.
 
-1. legitimate
-2. phishing
-3. bec
-4. spoofed
+Return ONLY valid JSON.
 
-IMPORTANT RULES:
-
-- Do not rely only on URLs.
-- BEC emails may contain zero malicious URLs.
-- Analyze SPF, DKIM and DMARC.
-- Analyze sender identity and domain.
-- Analyze Received headers.
-- Analyze financial requests.
-- Analyze urgency.
-- Analyze authority manipulation.
-- Analyze secrecy.
-- Analyze credential theft.
-- Analyze social engineering.
-- Consider typosquatting and impersonation.
-- Use the deterministic forensic evidence as supporting evidence.
-- Return ONLY valid JSON.
-- Do not return Markdown.
-- threat_score must be between 0 and 100.
-
-================ EMAIL ================
-
-FROM:
-{data["from"]}
-
-TO:
-{data["to"]}
-
-SUBJECT:
-{data["subject"]}
-
-DATE:
-{data["date"]}
-
-
-================ AUTHENTICATION ================
-
-SPF:
-{data["spf"]}
-
-DKIM:
-{data["dkim"]}
-
-DMARC:
-{data["dmarc"]}
-
-
-================ RECEIVED HEADERS ================
-
-{json.dumps(
-    data["received"],
-    indent=2
-)}
-
-
-================ ORIGINATING IP ================
-
-{data["originating_ip"]}
-
-
-================ URL INFORMATION ================
-
-Total URLs:
-{data["url_count"]}
-
-Suspicious URLs:
-{data["suspicious_url_count"]}
-
-
-================ DETERMINISTIC ANALYSIS ================
-
-Threat Score:
-{data["deterministic_threat_score"]}
-
-Classification:
-{data["deterministic_classification"]}
-
-
-================ FORENSIC EVIDENCE ================
-
-{json.dumps(
-    data["forensic_evidence"],
-    indent=2
-)}
-
-
-================ EMAIL BODY ================
-
-{data["body"]}
-
-
-================ REQUIRED OUTPUT ================
-
-Return exactly this JSON structure:
+Required JSON structure:
 
 {{
-    "threat_score": 0,
-
-    "classification": "legitimate",
-
-    "psychological_tactic": "",
-
-    "forensic_summary": "",
-
-    "indicators_of_compromise": [],
-
-    "reasons": []
+  "threat_score": 0,
+  "classification": "legitimate",
+  "psychological_tactic": "",
+  "forensic_summary": "",
+  "indicators_of_compromise": []
 }}
 
-The reasons array must explain WHY the email was classified that way.
+Classification must be exactly one of:
 
-Include both:
+legitimate
+phishing
+bec
+spoofed
 
-Technical evidence:
-- SPF
-- DKIM
-- DMARC
-- IP
-- URL/domain indicators
+EMAIL:
 
-Behavioral evidence:
-- urgency
-- authority
-- fear
-- financial pressure
-- secrecy
-- credential theft
-- social engineering
+From: {email["from"]}
+To: {email["to"]}
+Subject: {email["subject"]}
+
+SPF: {email["spf"]}
+DKIM: {email["dkim"]}
+DMARC: {email["dmarc"]}
+
+Originating IP: {email["originating_ip"]}
+
+Received Headers:
+{email["received"]}
+
+Body:
+{email["body"]}
 """
 
 
 # ============================================================
-# EXTRACT JSON FROM AI RESPONSE
+# JSON EXTRACTION
 # ============================================================
 
 def extract_json(text):
 
     if not text:
-        raise ValueError(
-            "AI returned an empty response."
-        )
+        raise ValueError("AI returned an empty response")
 
     text = text.strip()
 
-    # Remove Markdown code blocks
-    if text.startswith("```"):
+    # Remove markdown fences
+    if "```json" in text:
+        text = text.replace("```json", "")
 
-        text = text.replace(
-            "```json",
-            ""
-        )
+    if "```" in text:
+        text = text.replace("```", "")
 
-        text = text.replace(
-            "```",
-            ""
-        )
+    text = text.strip()
 
-        text = text.strip()
-
-    # Try normal JSON
-    try:
-
-        return json.loads(
-            text
-        )
-
-    except json.JSONDecodeError:
-        pass
-
-    # Search for JSON object
     start = text.find("{")
     end = text.rfind("}")
 
-    if start != -1 and end != -1:
+    if start == -1 or end == -1:
+        raise ValueError("AI response did not contain JSON")
 
-        json_text = text[
-            start:end + 1
-        ]
-
-        try:
-
-            return json.loads(
-                json_text
-            )
-
-        except json.JSONDecodeError:
-            pass
-
-    raise ValueError(
-        "AI response does not contain valid JSON."
-    )
+    return json.loads(text[start:end + 1])
 
 
 # ============================================================
-# NORMALIZE AI RESULT
+# RESULT NORMALIZATION
 # ============================================================
 
-def normalize_ai_result(
-    result,
-    provider
-):
+def normalize_result(result, provider):
+
+    if not isinstance(result, dict):
+        raise ValueError("AI result is not a dictionary")
 
     classification = str(
-        result.get(
-            "classification",
-            "unknown"
-        )
-    ).lower().strip()
+        result.get("classification", "legitimate")
+    ).lower()
 
-    allowed_classes = {
+    allowed = {
         "legitimate",
         "phishing",
         "bec",
-        "spoofed"
+        "spoofed",
     }
 
-    if classification not in allowed_classes:
-
-        classification = "unknown"
+    if classification not in allowed:
+        classification = "legitimate"
 
     try:
-
         threat_score = int(
-            result.get(
-                "threat_score",
-                0
-            )
+            result.get("threat_score", 0)
         )
-
-    except (
-        ValueError,
-        TypeError
-    ):
-
+    except Exception:
         threat_score = 0
 
-    threat_score = max(
-        0,
-        min(
-            100,
-            threat_score
-        )
-    )
+    threat_score = max(0, min(100, threat_score))
 
     iocs = result.get(
         "indicators_of_compromise",
         []
     )
 
-    if not isinstance(
-        iocs,
-        list
-    ):
-
-        iocs = [
-            str(iocs)
-        ]
-
-    reasons = result.get(
-        "reasons",
-        []
-    )
-
-    if not isinstance(
-        reasons,
-        list
-    ):
-
-        reasons = [
-            str(reasons)
-        ]
+    if not isinstance(iocs, list):
+        iocs = [str(iocs)]
 
     return {
-
-        "threat_score":
-            threat_score,
-
-        "classification":
-            classification,
-
-        "psychological_tactic":
-            str(
-                result.get(
-                    "psychological_tactic",
-                    ""
-                )
-            ),
-
-        "forensic_summary":
-            str(
-                result.get(
-                    "forensic_summary",
-                    ""
-                )
-            ),
-
-        "indicators_of_compromise":
-            iocs,
-
-        "reasons":
-            reasons,
-
-        "ai_provider":
-            provider,
-
-        "ai_status":
-            "success"
+        "threat_score": threat_score,
+        "classification": classification,
+        "psychological_tactic": str(
+            result.get("psychological_tactic", "")
+        ),
+        "forensic_summary": str(
+            result.get("forensic_summary", "")
+        ),
+        "indicators_of_compromise": [
+            str(x) for x in iocs
+        ],
+        "ai_provider": provider,
     }
 
 
@@ -507,224 +246,99 @@ def normalize_ai_result(
 # GEMINI
 # ============================================================
 
-def call_gemini(
-    api_key,
-    prompt
-):
+def call_gemini(email_data, api_key):
 
     from google import genai
-    from google.genai import types
 
-    client = genai.Client(
-        api_key=api_key
-    )
+    prompt = build_prompt(email_data)
+
+    client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
-
         model=GEMINI_MODEL,
-
         contents=prompt,
-
-        config=types.GenerateContentConfig(
-
-            temperature=0,
-
-            max_output_tokens=1200
-        )
     )
 
-    text = getattr(
-        response,
-        "text",
-        None
-    )
+    text = getattr(response, "text", None)
 
     if not text:
+        raise ValueError("Gemini returned an empty response")
 
-        raise ValueError(
-            "Gemini returned an empty response."
-        )
+    result = extract_json(text)
 
-    result = extract_json(
-        text
-    )
-
-    return normalize_ai_result(
-        result,
-        "google_ai_studio"
-    )
+    return normalize_result(result, "gemini")
 
 
 # ============================================================
 # GROQ
 # ============================================================
 
-def call_groq(
-    api_key,
-    prompt
-):
+def call_groq(email_data, api_key):
 
-    url = (
-        "https://api.groq.com/openai/v1/"
-        "chat/completions"
-    )
+    from groq import Groq
 
-    headers = {
+    prompt = build_prompt(email_data)
 
-        "Authorization":
-            f"Bearer {api_key}",
+    client = Groq(api_key=api_key)
 
-        "Content-Type":
-            "application/json"
-    }
-
-    payload = {
-
-        "model":
-            GROQ_MODEL,
-
-        "messages": [
-
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
             {
-                "role":
-                    "system",
-
-                "content":
-                    "You are an expert "
-                    "cybersecurity "
-                    "email-forensics "
-                    "analyst. Return "
-                    "only valid JSON."
-            },
-
-            {
-                "role":
-                    "user",
-
-                "content":
-                    prompt
+                "role": "user",
+                "content": prompt
             }
         ],
-
-        "temperature":
-            0,
-
-        "max_tokens":
-            1200
-    }
-
-    response = requests.post(
-
-        url,
-
-        headers=headers,
-
-        json=payload,
-
-        timeout=AI_TIMEOUT
+        temperature=0,
     )
 
-    response.raise_for_status()
+    text = response.choices[0].message.content
 
-    data = response.json()
+    result = extract_json(text)
 
-    text = (
-        data["choices"][0]
-        ["message"]["content"]
-    )
-
-    result = extract_json(
-        text
-    )
-
-    return normalize_ai_result(
-        result,
-        "groq"
-    )
+    return normalize_result(result, "groq")
 
 
 # ============================================================
 # OPENROUTER
 # ============================================================
 
-def call_openrouter(
-    api_key,
-    prompt
-):
+def call_openrouter(email_data, api_key):
 
-    url = (
-        "https://openrouter.ai/api/v1/"
-        "chat/completions"
-    )
+    prompt = build_prompt(email_data)
 
     headers = {
-
-        "Authorization":
-            f"Bearer {api_key}",
-
-        "Content-Type":
-            "application/json"
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
     }
 
     payload = {
-
-        "model":
-            OPENROUTER_MODEL,
-
+        "model": OPENROUTER_MODEL,
         "messages": [
-
             {
-                "role":
-                    "system",
-
-                "content":
-                    "You are an expert "
-                    "cybersecurity "
-                    "email-forensics "
-                    "analyst."
-            },
-
-            {
-                "role":
-                    "user",
-
-                "content":
-                    prompt
+                "role": "user",
+                "content": prompt
             }
         ],
-
-        "temperature":
-            0,
-
-        "max_tokens":
-            1200
+        "temperature": 0,
     }
 
     response = requests.post(
-
-        url,
-
+        "https://openrouter.ai/api/v1/chat/completions",
         headers=headers,
-
         json=payload,
-
-        timeout=AI_TIMEOUT
+        timeout=AI_TIMEOUT,
     )
 
     response.raise_for_status()
 
     data = response.json()
 
-    text = (
-        data["choices"][0]
-        ["message"]["content"]
-    )
+    text = data["choices"][0]["message"]["content"]
 
-    result = extract_json(
-        text
-    )
+    result = extract_json(text)
 
-    return normalize_ai_result(
+    return normalize_result(
         result,
         "openrouter"
     )
@@ -734,443 +348,241 @@ def call_openrouter(
 # OLLAMA
 # ============================================================
 
-def call_ollama(
-    prompt
-):
+def call_ollama(email_data):
 
-    url = (
-        "http://localhost:11434/api/generate"
-    )
+    prompt = build_prompt(email_data)
 
     payload = {
-
-        "model":
-            OLLAMA_MODEL,
-
-        "prompt":
-            prompt,
-
-        "stream":
-            False,
-
-        "format":
-            "json",
-
-        "options": {
-
-            "temperature":
-                0
-        }
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False,
     }
 
     response = requests.post(
-
-        url,
-
+        OLLAMA_URL,
         json=payload,
-
-        timeout=AI_TIMEOUT
+        timeout=AI_TIMEOUT,
     )
 
     response.raise_for_status()
 
     data = response.json()
 
-    text = data.get(
-        "response",
-        ""
-    )
+    text = data.get("response", "")
 
-    result = extract_json(
-        text
-    )
+    result = extract_json(text)
 
-    return normalize_ai_result(
+    return normalize_result(
         result,
         "ollama"
     )
 
 
 # ============================================================
-# PROVIDER ORDER
-# ============================================================
-
-def get_provider_order():
-
-    providers = [
-
-        "gemini",
-
-        "groq",
-
-        "openrouter",
-
-        "ollama"
-    ]
-
-    if PRIMARY_PROVIDER in providers:
-
-        providers.remove(
-            PRIMARY_PROVIDER
-        )
-
-        providers.insert(
-            0,
-            PRIMARY_PROVIDER
-        )
-
-    return providers
-
-
-# ============================================================
 # MAIN AI FUNCTION
 # ============================================================
 
-def analyze_with_ai(
-    email_data
-):
+def analyze_with_ai(email_data):
 
-    prompt = build_prompt(
-        email_data
-    )
+    providers = []
 
-    attempts = []
+    if PRIMARY_PROVIDER == "gemini":
+        providers = ["gemini", "groq", "openrouter", "ollama"]
 
-    providers = get_provider_order()
+    elif PRIMARY_PROVIDER == "groq":
+        providers = ["groq", "gemini", "openrouter", "ollama"]
 
-    if not FALLBACK_ENABLED:
+    elif PRIMARY_PROVIDER == "openrouter":
+        providers = ["openrouter", "gemini", "groq", "ollama"]
 
-        providers = [
-            PRIMARY_PROVIDER
-        ]
+    elif PRIMARY_PROVIDER == "ollama":
+        providers = ["ollama", "gemini", "groq", "openrouter"]
 
-    # ========================================================
-    # TRY PROVIDERS
-    # ========================================================
+    else:
+        providers = ["gemini", "groq", "openrouter", "ollama"]
+
+    print("\n================ AI PROVIDER TEST ================")
 
     for provider in providers:
 
-        # ----------------------------------------------------
-        # GEMINI
-        # ----------------------------------------------------
+        try:
 
-        if provider == "gemini":
+            if provider == "gemini":
 
-            if not GEMINI_KEYS:
+                if not GEMINI_KEYS:
+                    print("[GEMINI] ❌ No API key configured")
+                    continue
 
-                attempts.append({
+                for index, key in enumerate(GEMINI_KEYS, start=1):
 
-                    "provider":
-                        "google_ai_studio",
+                    try:
 
-                    "status":
-                        "not_configured"
-                })
+                        print(
+                            f"[GEMINI {index}] Testing..."
+                        )
 
-                continue
+                        result = call_gemini(
+                            email_data,
+                            key
+                        )
 
-            for index, key in enumerate(
-                GEMINI_KEYS,
-                start=1
-            ):
+                        print(
+                            f"[GEMINI {index}] ✅ WORKING"
+                        )
+
+                        print(
+                            "AI selected: GEMINI"
+                        )
+
+                        return result
+
+                    except Exception as error:
+
+                        print(
+                            f"[GEMINI {index}] ❌ FAILED: {error}"
+                        )
+
+            elif provider == "groq":
+
+                if not GROQ_KEYS:
+                    print("[GROQ] ❌ No API key configured")
+                    continue
+
+                for index, key in enumerate(GROQ_KEYS, start=1):
+
+                    try:
+
+                        print(
+                            f"[GROQ {index}] Testing..."
+                        )
+
+                        result = call_groq(
+                            email_data,
+                            key
+                        )
+
+                        print(
+                            f"[GROQ {index}] ✅ WORKING"
+                        )
+
+                        print(
+                            "AI selected: GROQ"
+                        )
+
+                        return result
+
+                    except Exception as error:
+
+                        print(
+                            f"[GROQ {index}] ❌ FAILED: {error}"
+                        )
+
+            elif provider == "openrouter":
+
+                if not OPENROUTER_KEYS:
+                    print(
+                        "[OPENROUTER] ❌ No API key configured"
+                    )
+                    continue
+
+                for index, key in enumerate(
+                    OPENROUTER_KEYS,
+                    start=1
+                ):
+
+                    try:
+
+                        print(
+                            f"[OPENROUTER {index}] Testing..."
+                        )
+
+                        result = call_openrouter(
+                            email_data,
+                            key
+                        )
+
+                        print(
+                            f"[OPENROUTER {index}] ✅ WORKING"
+                        )
+
+                        print(
+                            "AI selected: OPENROUTER"
+                        )
+
+                        return result
+
+                    except Exception as error:
+
+                        print(
+                            f"[OPENROUTER {index}] ❌ FAILED: {error}"
+                        )
+
+            elif provider == "ollama":
 
                 try:
 
                     print(
-                        f"[GEMINI {index}] Testing..."
+                        "[OLLAMA] Testing..."
                     )
 
-                    result = call_gemini(
-                        key,
-                        prompt
+                    result = call_ollama(
+                        email_data
                     )
 
                     print(
-                        f"[GEMINI {index}] "
-                        f"WORKING"
+                        "[OLLAMA] ✅ WORKING"
                     )
 
-                    result[
-                        "ai_attempts"
-                    ] = attempts
+                    print(
+                        "AI selected: OLLAMA"
+                    )
 
                     return result
 
                 except Exception as error:
 
                     print(
-                        f"[GEMINI {index}] "
-                        f"FAILED: {error}"
+                        f"[OLLAMA] ❌ FAILED: {error}"
                     )
 
-                    attempts.append({
+        except Exception as error:
 
-                        "provider":
-                            "google_ai_studio",
+            print(
+                f"[{provider.upper()}] ❌ PROVIDER ERROR: {error}"
+            )
 
-                        "key_number":
-                            index,
+        if not FALLBACK_ENABLED:
+            break
 
-                        "status":
-                            "failed",
-
-                        "error":
-                            str(error)
-                    })
-
-
-        # ----------------------------------------------------
-        # GROQ
-        # ----------------------------------------------------
-
-        elif provider == "groq":
-
-            if not GROQ_KEYS:
-
-                attempts.append({
-
-                    "provider":
-                        "groq",
-
-                    "status":
-                        "not_configured"
-                })
-
-                continue
-
-            for index, key in enumerate(
-                GROQ_KEYS,
-                start=1
-            ):
-
-                try:
-
-                    print(
-                        f"[GROQ {index}] Testing..."
-                    )
-
-                    result = call_groq(
-                        key,
-                        prompt
-                    )
-
-                    print(
-                        f"[GROQ {index}] "
-                        f"WORKING"
-                    )
-
-                    result[
-                        "ai_attempts"
-                    ] = attempts
-
-                    return result
-
-                except Exception as error:
-
-                    print(
-                        f"[GROQ {index}] "
-                        f"FAILED: {error}"
-                    )
-
-                    attempts.append({
-
-                        "provider":
-                            "groq",
-
-                        "key_number":
-                            index,
-
-                        "status":
-                            "failed",
-
-                        "error":
-                            str(error)
-                    })
-
-
-        # ----------------------------------------------------
-        # OPENROUTER
-        # ----------------------------------------------------
-
-        elif provider == "openrouter":
-
-            if not OPENROUTER_KEYS:
-
-                attempts.append({
-
-                    "provider":
-                        "openrouter",
-
-                    "status":
-                        "not_configured"
-                })
-
-                continue
-
-            for index, key in enumerate(
-                OPENROUTER_KEYS,
-                start=1
-            ):
-
-                try:
-
-                    print(
-                        f"[OPENROUTER {index}] "
-                        f"Testing..."
-                    )
-
-                    result = call_openrouter(
-                        key,
-                        prompt
-                    )
-
-                    print(
-                        f"[OPENROUTER {index}] "
-                        f"WORKING"
-                    )
-
-                    result[
-                        "ai_attempts"
-                    ] = attempts
-
-                    return result
-
-                except Exception as error:
-
-                    print(
-                        f"[OPENROUTER {index}] "
-                        f"FAILED: {error}"
-                    )
-
-                    attempts.append({
-
-                        "provider":
-                            "openrouter",
-
-                        "key_number":
-                            index,
-
-                        "status":
-                            "failed",
-
-                        "error":
-                            str(error)
-                    })
-
-
-        # ----------------------------------------------------
-        # OLLAMA
-        # ----------------------------------------------------
-
-        elif provider == "ollama":
-
-            try:
-
-                print(
-                    "[OLLAMA] Testing..."
-                )
-
-                result = call_ollama(
-                    prompt
-                )
-
-                print(
-                    "[OLLAMA] WORKING"
-                )
-
-                result[
-                    "ai_attempts"
-                ] = attempts
-
-                return result
-
-            except Exception as error:
-
-                print(
-                    f"[OLLAMA] FAILED: {error}"
-                )
-
-                attempts.append({
-
-                    "provider":
-                        "ollama",
-
-                    "status":
-                        "failed",
-
-                    "error":
-                        str(error)
-                })
-
-
-    # ========================================================
-    # ALL AI PROVIDERS FAILED
-    # ========================================================
-
-    deterministic_score = int(
-        email_data.get(
-            "deterministic_threat_score",
-            0
-        )
+    print(
+        "=================================================="
     )
 
-    deterministic_classification = (
-        email_data.get(
-            "deterministic_classification",
-            "unknown"
-        )
+    print(
+        "❌ ALL AI PROVIDERS FAILED"
+    )
+
+    print(
+        "Using deterministic forensic engine."
     )
 
     return {
-
-        "threat_score":
-            max(
-                0,
-                min(
-                    100,
-                    deterministic_score
-                )
-            ),
-
-        "classification":
-            deterministic_classification,
-
-        "psychological_tactic":
-            "",
-
-        "forensic_summary":
-            "AI providers failed. "
-            "Deterministic forensic "
-            "analysis was used.",
-
-        "indicators_of_compromise":
-            [],
-
-        "reasons":
-            email_data.get(
-                "forensic_evidence",
-                []
-            ),
-
-        "ai_provider":
-            "none",
-
-        "ai_status":
-            "failed",
-
-        "ai_attempts":
-            attempts
+        "threat_score": 0,
+        "classification": "legitimate",
+        "psychological_tactic": "",
+        "forensic_summary": (
+            "AI analysis unavailable. "
+            "Deterministic forensic analysis should be used."
+        ),
+        "indicators_of_compromise": [],
+        "ai_provider": "none",
     }
 
 
 # ============================================================
-# FUNCTION USED BY MAIN.PY
+# COMPATIBILITY WITH MAIN.PY
 # ============================================================
 
-def analyze_email_with_ai(
-    email_data
-):
+def analyze_email_with_ai(email_data):
 
-    return analyze_with_ai(
-        email_data
-    )
+    return analyze_with_ai(email_data)
