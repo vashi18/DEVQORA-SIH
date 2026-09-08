@@ -18,19 +18,24 @@ The frontend sends ONE raw pasted email as a single string. The backend is respo
 
 ```json
 {
-  "sender_ip": "192.0.2.1",
+  "sender_ip": "8.8.8.8",
   "location": {
-    "country": "Country name",
-    "city": "City name",
-    "lat": 0.0,
-    "lng": 0.0
+    "country": "United States",
+    "city": "Ashburn",
+    "lat": 39.03,
+    "lon": -77.5
   },
   "ip_reputation": {
-  "abuse_confidence_score": 0,
-  "total_reports": 201,
-  "country_code": "US",
-  "is_tor": false,
-  "source": "AbuseIPDB"
+    "abuse_confidence_score": 0,
+    "total_reports": 201,
+    "vt_reputation": 560,
+    "vt_malicious_votes": 0,
+    "vt_harmless_votes": 53,
+    "source": "AbuseIPDB + VirusTotal"
+  },
+  "threat_score": 0,
+  "red_flags": ["string"],
+  "verdict": "safe | suspicious | malicious"
 }
 ```
 
