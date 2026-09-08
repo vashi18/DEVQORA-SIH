@@ -1,0 +1,39 @@
+Return-Path: <no-reply@accounts.google.com>
+Delivered-To: user@example.com
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com [209.85.220.41])
+	by mx.example.com (Postfix) with ESMTPS id 3F9J1K2m8Rp
+	for <user@example.com>; Mon, 08 Sep 2026 10:02:15 +0530 (IST)
+Received: by mail-sor-f41.google.com with SMTP id x14sor12345678wrq.10
+	for <user@example.com>; Mon, 08 Sep 2026 04:32:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=google.com; s=20230601;
+	h=to:subject:message-id:date:from:mime-version;
+	bh=examplebase64hash==; b=examplesignaturehash==
+Authentication-Results: mx.example.com;
+	spf=pass smtp.mailfrom=accounts.google.com;
+	dkim=pass header.d=google.com;
+	dmarc=pass (p=REJECT) header.from=accounts.google.com
+X-Originating-IP: [209.85.220.41]
+Message-ID: <CADx3Kf9abc123def456@mail.gmail.com>
+From: "Google" <no-reply@accounts.google.com>
+To: user@example.com
+Subject: Security alert: New sign-in on Windows device
+Date: Mon, 08 Sep 2026 04:32:14 -0700
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Hi,
+
+Your Google Account was just signed in to from a new Windows device.
+
+Device: Windows 11
+Location: Mumbai, India (approximate)
+Time: Sep 8, 2026, 10:00 AM IST
+
+If this was you, you don't need to do anything.
+If not, we recommend you secure your account immediately at
+myaccount.google.com/security
+
+Thanks,
+The Google Accounts team

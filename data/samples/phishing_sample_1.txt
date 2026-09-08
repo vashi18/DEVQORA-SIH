@@ -1,0 +1,35 @@
+Return-Path: <security-alert@hdfcbank-verify.com>
+Delivered-To: victim@example.com
+Received: from mail-relay-02.suspicious-host.net (unknown [185.220.101.47])
+	by mx.example.com (Postfix) with ESMTPS id 4X7K2L9m3Nz
+	for <victim@example.com>; Mon, 08 Sep 2026 09:12:41 +0530 (IST)
+Received: from [10.0.0.15] (unverified [45.155.205.12])
+	by mail-relay-02.suspicious-host.net with SMTP id AB12CD34;
+	Mon, 08 Sep 2026 03:42:19 +0000
+Authentication-Results: mx.example.com;
+	spf=fail smtp.mailfrom=hdfcbank-verify.com;
+	dkim=none (no signature);
+	dmarc=fail (p=REJECT sp=REJECT dis=NONE) header.from=hdfcbank-verify.com
+X-Originating-IP: [45.155.205.12]
+Message-ID: <20260908034219.AB12CD34@hdfcbank-verify.com>
+From: "HDFC Bank Security" <security-alert@hdfcbank-verify.com>
+To: victim@example.com
+Subject: URGENT: Unusual login detected on your account - Verify Now
+Date: Mon, 08 Sep 2026 09:12:35 +0530
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: PHPMailer 5.2.10
+
+<html>
+<body>
+<p>Dear Customer,</p>
+<p>We detected an unusual login attempt on your HDFC Bank account from a new device.
+If this was not you, your account will be suspended within 24 hours.</p>
+<p>Click here immediately to verify your identity and secure your account:</p>
+<p><a href="http://hdfcbank-secure-login.verify-account.xyz/auth?id=8827aa">
+http://hdfc-netbanking.com/verify</a></p>
+<p>Failure to verify will result in permanent account suspension.</p>
+<p>Regards,<br>HDFC Bank Security Team</p>
+</body>
+</html>
