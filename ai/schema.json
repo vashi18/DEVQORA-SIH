@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "properties": {
+    "threat_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Risk score from 0 (clean) to 100 (critical attack)"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["legitimate", "phishing", "bec", "spoofed"],
+      "description": "Primary classification category"
+    },
+    "psychological_tactic": {
+      "type": "string",
+      "description": "Identified psychological manipulation lever (e.g., False Urgency, Authority Bias, Financial Coercion, None)"
+    },
+    "originating_ip": {
+      "type": "string",
+      "description": "The earliest public sending node IP address extracted from routing headers"
+    },
+    "forensic_summary": {
+      "type": "string",
+      "description": "Two-sentence technical forensic finding written for an incident response officer"
+    },
+    "indicators_of_compromise": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Explicit red flags observed in headers or body"
+    }
+  },
+  "required": [
+    "threat_score",
+    "classification",
+    "psychological_tactic",
+    "originating_ip",
+    "forensic_summary",
+    "indicators_of_compromise"
+  ]
+}
