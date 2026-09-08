@@ -26,13 +26,11 @@ The frontend sends ONE raw pasted email as a single string. The backend is respo
     "lng": 0.0
   },
   "ip_reputation": {
-    "score": 0,
-    "reports": 0,
-    "source": "AbuseIPDB"
-  },
-  "threat_score": 0,
-  "red_flags": ["urgent language", "suspicious link", "spoofed sender domain"],
-  "verdict": "safe | suspicious | malicious"
+  "abuse_confidence_score": 0,
+  "total_reports": 201,
+  "country_code": "US",
+  "is_tor": false,
+  "source": "AbuseIPDB"
 }
 ```
 
