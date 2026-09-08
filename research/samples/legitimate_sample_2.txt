@@ -1,0 +1,32 @@
+Return-Path: <notifications@github.com>
+Delivered-To: user@example.com
+Received: from o1234.outbound-mail.github.com (o1234.outbound-mail.github.com [192.30.252.194])
+	by mx.example.com (Postfix) with ESMTPS id 5H2L8P3n7Tq
+	for <user@example.com>; Sun, 07 Sep 2026 18:20:44 +0530 (IST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=github.com; s=s20150108;
+	h=from:to:subject:date:message-id:mime-version:content-type;
+	bh=examplebase64hash2==; b=examplesignaturehash2==
+Authentication-Results: mx.example.com;
+	spf=pass smtp.mailfrom=notifications@github.com;
+	dkim=pass header.d=github.com;
+	dmarc=pass (p=NONE) header.from=github.com
+X-Originating-IP: [192.30.252.194]
+Message-ID: <repo/pull/123/c987654321@github.com>
+From: "GitHub" <notifications@github.com>
+To: user@example.com
+Subject: [team/sih-project] New comment on Pull Request #12
+Date: Sun, 07 Sep 2026 12:50:40 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+List-Unsubscribe: <mailto:unsubscribe@github.com>
+
+Your teammate commented on pull request #12 in team/sih-project:
+
+"Looks good, just fix the API key handling before merging."
+
+View it on GitHub:
+https://github.com/team/sih-project/pull/12#issuecomment-1234567890
+
+You are receiving this because you were mentioned.

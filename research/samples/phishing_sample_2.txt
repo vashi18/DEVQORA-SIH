@@ -1,0 +1,35 @@
+Return-Path: <delivery-notice@indpost-tracking.info>
+Delivered-To: victim@example.com
+Received: from smtp-out-19.freehost-relay.com (smtp-out-19.freehost-relay.com [103.224.182.90])
+	by mx.example.com (Postfix) with ESMTP id 7Y3M1P8k2Qw
+	for <victim@example.com>; Sun, 07 Sep 2026 21:05:12 +0530 (IST)
+Received: by smtp-out-19.freehost-relay.com (Postfix, from userid 1003)
+	id 9C21EF45; Sun, 07 Sep 2026 15:35:02 +0000 (UTC)
+Authentication-Results: mx.example.com;
+	spf=softfail smtp.mailfrom=indpost-tracking.info;
+	dkim=fail reason="signature verification failed";
+	dmarc=fail
+X-Originating-IP: [103.224.182.90]
+Message-ID: <9C21EF45.1663610502@indpost-tracking.info>
+From: "India Post Delivery" <delivery-notice@indpost-tracking.info>
+To: victim@example.com
+Subject: Your parcel is on hold - Pay pending customs fee of Rs 49
+Date: Sun, 07 Sep 2026 21:05:02 +0530
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Mandrill
+
+Dear Customer,
+
+Your parcel (Tracking ID: INPT9928374IN) is currently on hold at our
+facility due to an unpaid customs handling fee of Rs 49.
+
+To release your parcel for delivery, please complete payment within 48 hours:
+
+http://indiapost-parcel-release.duckdns.org/pay?track=9928374
+
+Failure to pay will result in the parcel being returned to sender.
+
+Thank you,
+India Post Logistics Team

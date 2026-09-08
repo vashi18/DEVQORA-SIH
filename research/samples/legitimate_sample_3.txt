@@ -1,0 +1,36 @@
+Return-Path: <admin@aicte-india.org>
+Delivered-To: user@example.com
+Received: from mail.aicte-india.org (mail.aicte-india.org [164.100.128.45])
+	by mx.example.com (Postfix) with ESMTPS id 6M4N9Q1p3Vs
+	for <user@example.com>; Mon, 08 Sep 2026 15:00:22 +0530 (IST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=aicte-india.org; s=default;
+	h=from:to:subject:date:message-id:mime-version:content-type;
+	bh=examplebase64hash3==; b=examplesignaturehash3==
+Authentication-Results: mx.example.com;
+	spf=pass smtp.mailfrom=admin@aicte-india.org;
+	dkim=pass header.d=aicte-india.org;
+	dmarc=pass (p=REJECT) header.from=aicte-india.org
+X-Originating-IP: [164.100.128.45]
+Message-ID: <20260908150020.1A2B3C@aicte-india.org>
+From: "AICTE SIH Cell" <admin@aicte-india.org>
+To: user@example.com
+Subject: SIH 2026: Idea submission deadline reminder - 30 September
+Date: Mon, 08 Sep 2026 15:00:18 +0530
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+Dear Participant,
+
+This is a reminder that idea submissions for Smart India Hackathon 2026
+problem statements close on 30 September 2026, 11:59 PM IST.
+
+Please ensure your team has submitted your idea document through the
+official SIH portal before the deadline.
+
+For queries, contact your Nodal Center or reply to this email.
+
+Regards,
+SIH Coordination Cell
+AICTE
