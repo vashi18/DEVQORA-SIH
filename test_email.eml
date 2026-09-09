@@ -1,0 +1,12 @@
+From: test@example.com
+To: user@example.com
+Subject: Security Test
+Date: Tue, 08 Sep 2026 10:00:00 +0530
+Received: from mail.example.com (185.220.101.5)
+Authentication-Results: mail.example.com; spf=fail; dkim=fail; dmarc=fail
+Received-SPF: fail
+
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+This is a security test email.

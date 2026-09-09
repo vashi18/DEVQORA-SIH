@@ -1,0 +1,20 @@
+From: IT Support <it-support@example.org>
+To: employee@example.org
+Subject: Scheduled maintenance notification
+Date: Tue, 08 Sep 2026 10:00:00 +0000
+Message-ID: <legitimate-001@example.org>
+Received: from mail.example.org (203.0.113.25) by mx.example.org; Tue, 08 Sep 2026 10:00:00 +0000
+Authentication-Results: mx.example.org; spf=pass smtp.mailfrom=example.org; dkim=pass header.d=example.org; dmarc=pass header.from=example.org
+Content-Type: text/plain; charset="utf-8"
+
+Hello,
+
+This is a routine notification from IT Support.
+
+Scheduled maintenance will take place on Saturday from 22:00 to 23:00 UTC. During this period, internal applications may be briefly unavailable.
+
+No action is required from you.
+
+Regards,
+IT Support
+example.org

@@ -1,0 +1,20 @@
+From: CEO <ceo@example.org>
+To: finance@example.org
+Reply-To: ceo-office@examp1e.org
+Subject: Urgent confidential transfer
+Date: Tue, 08 Sep 2026 13:15:00 +0000
+Message-ID: <bec-002@examp1e.org>
+Received: from external-mail.example.net (192.0.2.145) by mx.example.org; Tue, 08 Sep 2026 13:15:00 +0000
+Authentication-Results: mx.example.org; spf=fail smtp.mailfrom=examp1e.org; dkim=neutral; dmarc=fail header.from=example.org
+Content-Type: text/plain; charset="utf-8"
+
+Hi Finance Team,
+
+I need an urgent transfer arranged for a business matter I am handling today.
+
+Please keep this request confidential and do not discuss it through the normal company group. I will provide the payment details once you confirm that you can process the transfer.
+
+Please reply as soon as possible.
+
+Thanks,
+CEO

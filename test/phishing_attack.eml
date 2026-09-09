@@ -1,0 +1,27 @@
+From: Security Team <security@example-security.com>
+To: user@company.com
+Subject: FINAL WARNING - Your Password Expires Today
+Date: Tue, 08 Sep 2026 10:30:00 +0530
+Message-ID: <security456@example-security.com>
+Received: from suspicious-relay.example (91.240.118.82)
+    by mail.company.com
+    with ESMTP;
+    Tue, 08 Sep 2026 10:30:00 +0530
+Authentication-Results: mail.company.com;
+    spf=softfail;
+    dkim=none;
+    dmarc=fail
+
+Your password expires today.
+
+You must verify your account immediately or your account
+will be suspended.
+
+Login and verify your credentials here:
+
+https://micros0ft-security.com/login
+
+Failure to complete verification may result in permanent
+account loss.
+
+Security Team
